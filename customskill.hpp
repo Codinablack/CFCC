@@ -283,14 +283,17 @@ namespace Components {
                 {
                     if (exp & 1) 
                     {
-                        if (result > std::numeric_limits<uint64_t>::max() / base)
+                        [[unlikely]]
+                        if (result > PointMax / base)
                         {
                             return PointMax;
                         }     
                         result *= base;
                     }
                     exp >>= 1;
-                    if (exp and base > std::numeric_limits<uint64_t>::max() / base)
+
+                    [[unlikely]]
+                    if (exp and base > PointMax / base)
                     {
                         return PointMax;
                     }
@@ -306,12 +309,15 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (x > 0 and y > PointMax / x) return PointMax;
                 uint64_t xy = x * y;
 
+                [[unlikely]]
                 if (z > 0 and target_level > PointMax / z) return PointMax;
                 uint64_t zt = z * target_level;
 
+                [[unlikely]]
                 if (xy > PointMax - zt) return PointMax;
                 return xy + zt;
             }
@@ -323,16 +329,20 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (y > PointMax / target_level) return PointMax;
                 uint64_t product = y * target_level;
 
+                [[unlikely]]
                 if (z > PointMax - product) return PointMax;
                 uint64_t sum = product + z;
 
+                [[unlikely]]
                 if (sum == 0) return 0;
                 uint64_t log2_val = 0;
                 while (sum >>= 1) ++log2_val;
 
+                [[unlikely]]
                 if (x > PointMax / log2_val) return PointMax;
                 return x * log2_val;
             }
@@ -344,10 +354,12 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (target_level <= z + 1) return x;
                 uint64_t exponent = target_level - (z + 1);
                 uint64_t power = integerPow(y, exponent);
 
+                [[unlikely]]
                 if (x > 0 and power > PointMax / x) return PointMax;
                 return x * power;
             }
@@ -359,18 +371,23 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (level > PointMax / level) return PointMax;
                 uint64_t level2 = level * level;
 
+                [[unlikely]]
                 if (x > 0 and level2 > PointMax / x) return PointMax;
                 uint64_t x_part = x * level2;
 
+                [[unlikely]]
                 if (y > 0 and level > PointMax / y) return PointMax;
                 uint64_t y_part = y * level;
 
+                [[unlikely]]
                 if (x_part > PointMax - y_part) return PointMax;
                 uint64_t sum = x_part + y_part;
 
+                [[unlikely]]
                 if (sum > PointMax - z) return PointMax;
                 return sum + z;
             }
@@ -380,12 +397,15 @@ namespace Components {
             {
                 auto x = static_cast<uint64_t>(factor_x);
 
+                [[unlikely]]
                 if (level > PointMax / level) return PointMax;
                 uint64_t level2 = level * level;
 
+                [[unlikely]]
                 if (level2 > PointMax / level) return PointMax;
                 uint64_t level3 = level2 * level;
 
+                [[unlikely]]
                 if (x > 0 and level3 > PointMax / x) return PointMax;
                 return x * level3;
             }
@@ -397,12 +417,15 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (z > PointMax - level) return PointMax;
                 uint64_t stepped = level + z;
 
+                [[unlikely]]
                 if (y == 0) return PointMax;
                 uint64_t quotient = stepped / y;
 
+                [[unlikely]]
                 if (x > 0 and quotient > PointMax / x) return PointMax;
                 return x * quotient;
             }
@@ -414,14 +437,17 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (y > PointMax - level) return PointMax;
                 uint64_t input = level + y;
 
                 uint64_t root = integerSqrt(input);
 
+                [[unlikely]]
                 if (x > 0 and root > PointMax / x) return PointMax;
                 uint64_t product = x * root;
 
+                [[unlikely]]
                 if (product > PointMax - z) return PointMax;
                 return product + z;
             }
@@ -433,12 +459,15 @@ namespace Components {
                 auto y = static_cast<uint64_t>(factor_y);
                 auto z = static_cast<uint64_t>(factor_z);
 
+                [[unlikely]]
                 if (y > PointMax - level) return PointMax;
                 uint64_t denom = y + level;
 
+                [[unlikely]]
                 if (denom == 0) return PointMax;
                 uint64_t div = x / denom;
 
+                [[unlikely]]
                 if (div > PointMax - z) return PointMax;
                 return div + z;
             }
