@@ -302,7 +302,7 @@ namespace Components {
                 return result;
             }
 
-            [[nodiscard]]
+            [[nodiscard ("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t linearGrowth(uint64_t target_level) const 
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -322,7 +322,7 @@ namespace Components {
                 return xy + zt;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t logarithmicGrowth(uint64_t target_level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -347,7 +347,7 @@ namespace Components {
                 return x * log2_val;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t exponentialGrowth(uint64_t target_level)
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -364,7 +364,7 @@ namespace Components {
                 return x * power;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t quadraticGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -392,7 +392,7 @@ namespace Components {
                 return sum + z;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t cubicGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -410,7 +410,7 @@ namespace Components {
                 return x * level3;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t stepGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -430,7 +430,7 @@ namespace Components {
                 return x * quotient;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t rootGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
@@ -452,7 +452,7 @@ namespace Components {
                 return product + z;
             }
 
-            [[nodiscard]] 
+            [[nodiscard("This is an internal method that should only be called when the return value is intended for use.")]]
             constexpr uint64_t inverseGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
