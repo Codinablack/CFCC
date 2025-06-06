@@ -49,8 +49,7 @@ namespace Components {
         class CustomSkill {
         public:
 
-            CustomSkill(std::string_view name, FormulaType form = FormulaType::EXPONENTIAL, uint16_t max = 0, uint16_t x = 1, uint16_t y = 1, uint16_t z = 1) : 
-            skill_name(name),
+            CustomSkill(FormulaType form = FormulaType::EXPONENTIAL, uint16_t max = 0, uint16_t x = 1, uint16_t y = 1, uint16_t z = 1) : 
             factor_x(x),
             factor_y(y),
             factor_z(z),
@@ -60,12 +59,15 @@ namespace Components {
                 //
             }
 
+            [[nodiscard]]
             constexpr uint64_t points() noexcept 
             {
+                [[unlikely]]
                 if (max_level > 0 and current_level >= max_level) 
                 {
                     return pointsRequired(max_level);
                 }
+                [[likely]]
                 return current_points;
             }
 
@@ -73,6 +75,7 @@ namespace Components {
             // along with a current level, both of which are uint16_t,
             // we are still returning a max of a uint16_t, so maxing both out
             // will not result in an even higher level, it's still hard capped
+            [[nodiscard]]
             constexpr uint16_t level(bool count_bonus = true) const noexcept 
             {
                 if (not count_bonus or bonus_level == 0) 
@@ -83,13 +86,9 @@ namespace Components {
                 return total < LevelMax ? static_cast<uint16_t>(total) : LevelMax;
             }
 
-            std::string_view name() const noexcept 
-            {
-                return skill_name;
-            }
-
             bool addPoints(uint32_t points) noexcept
             {
+                [[unlikely]]
                 if (not points) 
                 {
                     return false;
@@ -135,6 +134,7 @@ namespace Components {
 
             bool removePoints(uint32_t points_to_remove) noexcept
             {
+                [[unlikely]]
                 if (not points_to_remove) 
                 {
                     return false;
@@ -179,6 +179,7 @@ namespace Components {
 
             bool addLevels(uint16_t levels, bool save_progress = false) noexcept
             {
+                [[unlikely]] 
                 if (not levels) 
                 {
                     return false;
@@ -194,11 +195,11 @@ namespace Components {
 
             bool removeLevels(uint16_t levels, bool save_progress = false) noexcept 
             {
+                [[unlikely]]
                 if (not levels) 
                 {
                     return false;
                 }
-
                 uint64_t required = pointsRequired(current_level);
                 double percent = save_progress and required > 0 ? static_cast<double>(current_points) / required : 0.0;
                 current_level = std::max<uint16_t>(1, current_level - levels);
@@ -210,53 +211,36 @@ namespace Components {
             Number percent() const noexcept 
             {
                 static_assert(std::is_arithmetic_v<Number>, "percent() requires an arithmetic return type");
+                auto required = pointsRequired(level);
 
-                if (current_points  > 0)
+                [[likely]] 
+                if (current_points and required)
                 {
                     auto level = (current_level + 1);
-                    auto required = pointsRequired(level);
                     auto raw_percent = (current_points * 100ULL) / required;
                     return static_cast<Number>(raw_percent);
                 }
+                [[unlikely]]
                 return static_cast<Number>(0);
             }
 
-            bool addBonus(uint16_t levels) noexcept
+            void setBonus(int16_t level) noexcept
             {
-                if (uint32_t total = static_cast<uint32_t>(levels) + bonus_level; total > LevelMax)
-                {
-                    return false;
-                }
-                bonus_level += levels;
-                return true;
-            }
-
-            bool subtractBonus(uint16_t levels) noexcept
-            {
-                if (levels > bonus_level)
-                    return false;
-
-                bonus_level -= levels;
-                return true;
-            }
-
-            void clearBonus() noexcept
-            {
-                bonus_level = 0;
+                bonus_level = level;
             }
 
         private:
 
-            std::string skill_name = "none";
             uint64_t current_points = 0;
             uint16_t factor_x = 1;
             uint16_t factor_y = 1;
             uint16_t factor_z = 1;
             uint16_t current_level = 1;
-            uint16_t bonus_level = 0;
+            int16_t bonus_level = 0;
             uint16_t max_level = 0;  // Maximum allowed level, if 0, limit is numerical limit;
             FormulaType formula = FormulaType::EXPONENTIAL;
 
+            [[nodiscard]] 
             uint64_t pointsRequired(uint64_t target_level)
             {
                 switch (formula) 
@@ -315,7 +299,8 @@ namespace Components {
                 return result;
             }
 
-            uint64_t linearGrowth(uint64_t target_level) const 
+            [[nodiscard]]
+            constexpr uint64_t linearGrowth(uint64_t target_level) const 
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -331,7 +316,8 @@ namespace Components {
                 return xy + zt;
             }
 
-            uint64_t logarithmicGrowth(uint64_t target_level) const 
+            [[nodiscard]] 
+            constexpr uint64_t logarithmicGrowth(uint64_t target_level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -351,7 +337,8 @@ namespace Components {
                 return x * log2_val;
             }
 
-            uint64_t exponentialGrowth(uint64_t target_level)
+            [[nodiscard]] 
+            constexpr uint64_t exponentialGrowth(uint64_t target_level)
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -365,7 +352,8 @@ namespace Components {
                 return x * power;
             }
 
-            uint64_t quadraticGrowth(uint64_t level) const 
+            [[nodiscard]] 
+            constexpr uint64_t quadraticGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -387,7 +375,8 @@ namespace Components {
                 return sum + z;
             }
 
-            uint64_t cubicGrowth(uint64_t level) const 
+            [[nodiscard]] 
+            constexpr uint64_t cubicGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
 
@@ -401,7 +390,8 @@ namespace Components {
                 return x * level3;
             }
 
-            uint64_t stepGrowth(uint64_t level) const 
+            [[nodiscard]] 
+            constexpr uint64_t stepGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -417,7 +407,8 @@ namespace Components {
                 return x * quotient;
             }
 
-            uint64_t rootGrowth(uint64_t level) const 
+            [[nodiscard]] 
+            constexpr uint64_t rootGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
@@ -435,7 +426,8 @@ namespace Components {
                 return product + z;
             }
 
-            uint64_t inverseGrowth(uint64_t level) const 
+            [[nodiscard]] 
+            constexpr uint64_t inverseGrowth(uint64_t level) const
             {
                 auto x = static_cast<uint64_t>(factor_x);
                 auto y = static_cast<uint64_t>(factor_y);
